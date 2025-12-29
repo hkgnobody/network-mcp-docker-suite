@@ -1,44 +1,20 @@
 # NetBox MCP Server
 
-A Model Context Protocol (MCP) server that provides comprehensive access to NetBox DCIM/IPAM capabilities for infrastructure documentation, IP address management, and device lifecycle tracking with enterprise-grade security.
+**AI-Powered NetBox Automation with Dynamic Custom Script Discovery**
 
-## Overview
+A Model Context Protocol (MCP) server that automatically transforms NetBox Custom Scripts into first-class MCP tools, enabling natural language infrastructure automation with enterprise-grade security.
 
-This MCP server provides **complete** API-based access to NetBox capabilities, enabling:
+## 🚀 Key Innovation: Dynamic Custom Scripts
 
-- **DCIM (Data Center Infrastructure Management)**: Complete facility, rack, and device management
-- **IPAM (IP Address Management)**: IP address spaces, prefixes, and VLAN management
-- **Custom Scripts & Workflows**: Execute complex automation workflows via natural language 🆕
-- **Device Lifecycle Management**: Hardware inventory, device types, and lifecycle tracking
-- **Network Documentation**: Comprehensive network topology and connection documentation
-- **Cable Management**: Physical and logical connection tracking
-- **Custom Fields**: Extensible data model with custom attributes
-- **Multi-Tenancy**: Organization and tenant-based resource separation
-- **HTTP Transport**: Modern MCP transport for MCP clients (Cursor, LibreChat, etc.)
+### **Your NetBox Scripts Become AI Tools Automatically**
 
-### 🆕 Dynamic Custom Scripts (Auto-Discovered Tools)
+This server **automatically discovers and registers** your NetBox Custom Scripts as native MCP tools at startup - **zero configuration required**.
 
-This server **automatically discovers and registers** NetBox Custom Scripts as first-class MCP tools at startup!
+Write a custom script in NetBox → Restart container → AI can use it immediately!
 
-**What This Means:**
-- ✅ **Zero Configuration**: Custom scripts become MCP tools automatically
-- ✅ **One-Step Execution**: Call `create_site_and_locations(...)` directly instead of multi-step workflows
-- ✅ **Type Safety**: Parameters are properly typed (int, str, bool) based on NetBox variable definitions
-- ✅ **Better AI UX**: AI immediately sees available scripts as native tools
-- ✅ **Auto-Updates**: New scripts appear automatically after container restart
-
-**Example: Before vs After**
-
-*Before (Multi-step workflow):*
-```
-1. find_custom_script("create site")
-2. get_script_variables(17)
-3. get_object_choices("dcim/tenants")
-4. execute_custom_script(17, {...})
-```
-
-*After (Direct tool call):*
-```
+**Example:**
+```python
+# Your NetBox script becomes this MCP tool automatically:
 create_site_and_locations(
     tenant_id=24,
     region_id=12,
@@ -49,22 +25,64 @@ create_site_and_locations(
 )
 ```
 
-**Dynamically Registered Tools:**
-The server discovers your NetBox custom scripts and creates tools like:
+### **How It Works**
+
+1. **Auto-Discovery**: Server fetches custom scripts from NetBox API on startup
+2. **Dynamic Registration**: Each script becomes a typed MCP tool with proper parameters
+3. **AI-Native**: Tools appear directly to AI agents (Claude, LibreChat, etc.)
+4. **Type-Safe**: ObjectVar → int, StringVar → str, IntegerVar → int
+5. **Smart Endpoints**: Automatically maps parameters to NetBox endpoints
+
+### 🎯 Benefits
+
+- ✅ **Zero Configuration**: Fully API-based, no manual setup
+- ✅ **Direct Execution**: AI calls tools directly - simple and efficient
+- ✅ **Type Safety**: Parameters properly typed for better AI understanding
+- ✅ **Auto-Updates**: New scripts appear after container restart
+- ✅ **Scalable**: Follows [Anthropic's MCP best practices](https://www.anthropic.com/engineering/code-execution-with-mcp)
+- ✅ **Production Ready**: Error handling, logging, job tracking
+
+### 📦 Currently Auto-Discovered Tools
+
+When the server starts, it registers tools like:
 - `create_site_and_locations()` - Provision new sites with floors
 - `add_switches_to_site()` - Deploy switches to existing sites
 - `create_ips()` - Automated IP address allocation
-- *(Your custom scripts automatically appear here!)*
+- **Your custom scripts automatically appear here!**
 
-**Generic Fallback Tools (Still Available):**
-- `find_custom_script()` - Search for scripts by description
-- `execute_custom_script()` - Generic script execution
-- `get_script_variables()` - Get script parameter details
-- `get_script_job_status()` - Check execution status
+---
 
-## Features
+## 🏗️ Additional NetBox Capabilities
 
-### Available Tools
+Beyond custom scripts, this server also provides comprehensive access to:
+
+- **DCIM (Data Center Infrastructure Management)**: Sites, racks, devices, cables
+- **IPAM (IP Address Management)**: IP addresses, prefixes, VLANs, VRFs
+- **Device Lifecycle Management**: Hardware inventory and tracking
+- **Network Documentation**: Topology and connection documentation
+- **Multi-Tenancy**: Organization and tenant-based resource separation
+
+All accessible through natural language with your AI assistant!
+
+## Available Tools
+
+### 🆕 Dynamically Registered Custom Script Tools
+
+**Auto-discovered from your NetBox custom scripts:**
+- **`create_site_and_locations(...)`**: 🎯 Provision new sites with multiple floors
+- **`add_switches_to_site(...)`**: 🎯 Deploy switches to existing sites
+- **`create_ips(...)`**: 🎯 Automated IP address allocation workflows
+- ***Your custom scripts automatically appear here!*** 🎯
+
+Each tool is automatically generated with:
+- Properly typed parameters (int, str, bool)
+- Intelligent descriptions based on variable names
+- Endpoint hints for ObjectVar parameters (use `get_object_choices()` to see options)
+- Job tracking and status monitoring
+
+---
+
+### Core NetBox Operations
 
 **Site & Location Management:**
 - **`get_sites`**: List and manage data center sites and locations
@@ -92,20 +110,8 @@ The server discovers your NetBox custom scripts and creates tools like:
 - **`get_connections`**: List logical network connections
 - **`get_circuits`**: List WAN circuits and provider connections
 
-**Custom Scripts & Automation:**
-
-*Dynamic Tools (Auto-registered from your NetBox custom scripts):*
-- **`create_site_and_locations(...)`**: 🆕 Dynamically registered tool from NetBox script
-- **`add_switches_to_site(...)`**: 🆕 Dynamically registered tool from NetBox script
-- **`create_ips(...)`**: 🆕 Dynamically registered tool from NetBox script
-- *Your custom scripts automatically appear here on container startup!*
-
-*Generic Script Management (Fallback tools):*
-- **`get_custom_scripts`**: List all available custom scripts and workflows
-- **`find_custom_script`**: Search for scripts by natural language description
-- **`get_script_variables`**: Get detailed info about script parameters (especially ObjectVars)
-- **`get_object_choices`**: List all available options for ObjectVar parameters (recommended)
-- **`execute_custom_script`**: Generic script execution (use if dynamic tool isn't available)
+**Custom Script Utilities:**
+- **`get_object_choices`**: List available options for ObjectVar parameters (essential for selecting tenants, regions, sites, etc.)
 - **`get_script_job_status`**: Check script execution status and results
 - **`list_script_jobs`**: View history of script executions
 
@@ -278,7 +284,64 @@ result = execute_custom_script(
 
 ## Usage Examples
 
-### Site Management
+### 🆕 Dynamic Custom Scripts (Recommended Approach)
+
+**The fastest way to automate NetBox workflows - your scripts become AI tools automatically!**
+
+```python
+# Example 1: Create a new site with floors using dynamic tool
+# No need to find scripts, get variables, or look up IDs manually
+# The AI can call this directly!
+
+result = create_site_and_locations(
+    tenant_id=24,           # Tip: Use get_object_choices("tenancy/tenants") to see options
+    region_id=12,           # Tip: Use get_object_choices("dcim/regions") to see options
+    site_name="DC-West-05",
+    address="123 Innovation Drive, San Jose, CA",
+    number_of_floors=4,
+    lowest_floor=0
+)
+
+print(f"Site created! Job ID: {result['job_id']}")
+
+# Example 2: Add switches to the site
+result = add_switches_to_site(
+    tenant_id=24,
+    site_id=120,
+    device_type_id=8,
+    device_role_id=3,
+    device_uplink_id=100,
+    serial_numbers="SN12345,SN12346,SN12347"
+)
+
+# Example 3: Check job status
+status = get_script_job_status(result['job_id'])
+print(f"Status: {status['status']['label']}")
+print(f"Output: {status['data']}")
+```
+
+**How to discover available options for parameters:**
+
+```python
+# Show available tenants
+tenants = get_object_choices("tenancy/tenants")
+for t in tenants['choices']:
+    print(f"{t['name']} (ID: {t['id']})")
+
+# Show available regions
+regions = get_object_choices("dcim/regions")
+for r in regions['choices']:
+    print(f"{r['name']} (ID: {r['id']})")
+
+# Show available sites
+sites = get_object_choices("dcim/sites")
+```
+
+---
+
+### Core NetBox Operations
+
+**Site Management:**
 
 ```python
 # List all data center sites
@@ -355,102 +418,20 @@ device_types = get_device_types()
 manufacturers = get_manufacturers()
 ```
 
-### 🆕 Dynamic Custom Scripts (Recommended Approach)
+### Utility: Script Job Monitoring
+
+**Check the status of script executions:**
 
 ```python
-# NEW: Custom scripts are automatically registered as first-class tools!
-# No need for multi-step workflows - just call the tool directly.
+# Check job status after running a dynamic tool
+status = get_script_job_status(job_id=138)
+print(f"Status: {status['status']}")
+print(f"Completed: {status['completed']}")
 
-# Example 1: Create a new site with floors
-result = create_site_and_locations(
-    tenant_id=24,           # Use get_object_choices("tenancy/tenants") to see options
-    region_id=12,           # Use get_object_choices("dcim/regions") to see options
-    site_name="Site-10",
-    address="123 Main St, City, Country",
-    number_of_floors=3,
-    lowest_floor=0
-)
-
-# Example 2: Add switches to a site
-result = add_switches_to_site(
-    tenant_id=24,
-    site_id=15,
-    device_type_id=8,
-    device_role_id=3,
-    device_uplink_id=100,
-    serial_numbers="SN001,SN002,SN003"
-)
-
-# Example 3: Allocate IPs for a tenant
-result = create_ips(tenant_id=24)
-
-# Check job status
-if result["success"]:
-    job_status = get_script_job_status(result["job_id"])
-    print(f"Status: {job_status['status']}")
-    print(f"Output: {job_status['data']}")
-
-# Pro tip: To discover available options for ObjectVar parameters
-tenants = get_object_choices("tenancy/tenants")
-regions = get_object_choices("dcim/regions")
-sites = get_object_choices("dcim/sites")
-print(f"Available tenants: {[t['name'] for t in tenants['choices']]}")
-```
-
-### Custom Scripts & Workflows (Generic Approach - Fallback)
-
-```python
-# ALTERNATIVE: Use generic tools if dynamic tool isn't available
-# This is the old multi-step approach (still works)
-
-# Step 1: Find the script you want to run
-matches = find_custom_script("create site")
-script_id = matches["matches"][0]["id"]  # e.g., 17
-
-# Step 2: Get detailed information about required parameters
-vars_info = get_script_variables(script_id=17)
-print(vars_info["variables"])
-# Shows:
-#   tenant (ObjectVar) - needs tenant ID
-#   region (ObjectVar) - needs region ID
-#   site_name (StringVar) - provide as string
-#   number_of_floors (IntegerVar) - provide as integer
-
-# Step 3: Show available choices for ObjectVar parameters
-# IMPROVED: Show user ALL available tenants to choose from
-tenants = get_object_choices("dcim/tenants")
-print("Available tenants:")
-for t in tenants["choices"]:
-    print(f"  {t['id']}: {t['name']}")
-# Output:
-#   1: Acme Corp
-#   2: TechCo
-#   3: GlobalNet
-
-# User selects: "Acme Corp"
-tenant_id = 1  # Selected from list above
-
-# IMPROVED: Show user ALL available regions to choose from
-regions = get_object_choices("dcim/regions")
-print("Available regions:")
-for r in regions["choices"]:
-    print(f"  {r['id']}: {r['name']}")
-# Output:
-#   1: North America
-#   2: Europe
-#   3: Asia Pacific
-
-# User selects: "Europe"
-region_id = 2  # Selected from list above
-
-# Step 4: Execute the script with all parameters
-job_result = execute_custom_script(
-    script_id=17,
-    data={
-        "tenant": tenant_id,             # ObjectVar: ID from choice list
-        "region": region_id,             # ObjectVar: ID from choice list
-        "site_name": "DC-West-01",       # StringVar: String
-        "address": "123 Data Center Dr",  # StringVar: String
+# List recent script executions
+jobs = list_script_jobs(limit=10)
+for job in jobs['data']:
+    print(f"{job['name']}: {job['status']}")
         "number_of_floors": 3,           # IntegerVar: Integer
         "lowest_floor": 0                # IntegerVar: Integer
     },
