@@ -16,13 +16,51 @@ This MCP server provides **complete** API-based access to NetBox capabilities, e
 - **Multi-Tenancy**: Organization and tenant-based resource separation
 - **HTTP Transport**: Modern MCP transport for MCP clients (Cursor, LibreChat, etc.)
 
-### 🆕 Custom Scripts Support
+### 🆕 Dynamic Custom Scripts (Auto-Discovered Tools)
 
-This server now supports **NetBox Custom Scripts**, enabling:
-- ✅ **Natural Language Workflow Execution**: "Run workflow to create a new site"
-- ✅ **Script Discovery**: AI automatically finds the right script based on descriptions
-- ✅ **Complex Automation**: Site provisioning, device onboarding, IP allocation workflows
-- ✅ **Job Tracking**: Monitor script execution status and retrieve results
+This server **automatically discovers and registers** NetBox Custom Scripts as first-class MCP tools at startup!
+
+**What This Means:**
+- ✅ **Zero Configuration**: Custom scripts become MCP tools automatically
+- ✅ **One-Step Execution**: Call `create_site_and_locations(...)` directly instead of multi-step workflows
+- ✅ **Type Safety**: Parameters are properly typed (int, str, bool) based on NetBox variable definitions
+- ✅ **Better AI UX**: AI immediately sees available scripts as native tools
+- ✅ **Auto-Updates**: New scripts appear automatically after container restart
+
+**Example: Before vs After**
+
+*Before (Multi-step workflow):*
+```
+1. find_custom_script("create site")
+2. get_script_variables(17)
+3. get_object_choices("dcim/tenants")
+4. execute_custom_script(17, {...})
+```
+
+*After (Direct tool call):*
+```
+create_site_and_locations(
+    tenant_id=24,
+    region_id=12,
+    site_name="Site-10",
+    address="123 Main St",
+    number_of_floors=3,
+    lowest_floor=0
+)
+```
+
+**Dynamically Registered Tools:**
+The server discovers your NetBox custom scripts and creates tools like:
+- `create_site_and_locations()` - Provision new sites with floors
+- `add_switches_to_site()` - Deploy switches to existing sites
+- `create_ips()` - Automated IP address allocation
+- *(Your custom scripts automatically appear here!)*
+
+**Generic Fallback Tools (Still Available):**
+- `find_custom_script()` - Search for scripts by description
+- `execute_custom_script()` - Generic script execution
+- `get_script_variables()` - Get script parameter details
+- `get_script_job_status()` - Check execution status
 
 ## Features
 
@@ -55,12 +93,19 @@ This server now supports **NetBox Custom Scripts**, enabling:
 - **`get_circuits`**: List WAN circuits and provider connections
 
 **Custom Scripts & Automation:**
+
+*Dynamic Tools (Auto-registered from your NetBox custom scripts):*
+- **`create_site_and_locations(...)`**: 🆕 Dynamically registered tool from NetBox script
+- **`add_switches_to_site(...)`**: 🆕 Dynamically registered tool from NetBox script
+- **`create_ips(...)`**: 🆕 Dynamically registered tool from NetBox script
+- *Your custom scripts automatically appear here on container startup!*
+
+*Generic Script Management (Fallback tools):*
 - **`get_custom_scripts`**: List all available custom scripts and workflows
 - **`find_custom_script`**: Search for scripts by natural language description
 - **`get_script_variables`**: Get detailed info about script parameters (especially ObjectVars)
 - **`get_object_choices`**: List all available options for ObjectVar parameters (recommended)
-- **`search_for_object_id`**: Look up object IDs by name (deprecated - use get_object_choices instead)
-- **`execute_custom_script`**: Run custom scripts with parameters
+- **`execute_custom_script`**: Generic script execution (use if dynamic tool isn't available)
 - **`get_script_job_status`**: Check script execution status and results
 - **`list_script_jobs`**: View history of script executions
 
@@ -310,10 +355,53 @@ device_types = get_device_types()
 manufacturers = get_manufacturers()
 ```
 
-### Custom Scripts & Workflows
+### 🆕 Dynamic Custom Scripts (Recommended Approach)
 
 ```python
-# COMPLETE WORKFLOW: Improved UX with object selection
+# NEW: Custom scripts are automatically registered as first-class tools!
+# No need for multi-step workflows - just call the tool directly.
+
+# Example 1: Create a new site with floors
+result = create_site_and_locations(
+    tenant_id=24,           # Use get_object_choices("tenancy/tenants") to see options
+    region_id=12,           # Use get_object_choices("dcim/regions") to see options
+    site_name="Site-10",
+    address="123 Main St, City, Country",
+    number_of_floors=3,
+    lowest_floor=0
+)
+
+# Example 2: Add switches to a site
+result = add_switches_to_site(
+    tenant_id=24,
+    site_id=15,
+    device_type_id=8,
+    device_role_id=3,
+    device_uplink_id=100,
+    serial_numbers="SN001,SN002,SN003"
+)
+
+# Example 3: Allocate IPs for a tenant
+result = create_ips(tenant_id=24)
+
+# Check job status
+if result["success"]:
+    job_status = get_script_job_status(result["job_id"])
+    print(f"Status: {job_status['status']}")
+    print(f"Output: {job_status['data']}")
+
+# Pro tip: To discover available options for ObjectVar parameters
+tenants = get_object_choices("tenancy/tenants")
+regions = get_object_choices("dcim/regions")
+sites = get_object_choices("dcim/sites")
+print(f"Available tenants: {[t['name'] for t in tenants['choices']]}")
+```
+
+### Custom Scripts & Workflows (Generic Approach - Fallback)
+
+```python
+# ALTERNATIVE: Use generic tools if dynamic tool isn't available
+# This is the old multi-step approach (still works)
 
 # Step 1: Find the script you want to run
 matches = find_custom_script("create site")
