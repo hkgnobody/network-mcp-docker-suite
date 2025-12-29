@@ -1168,20 +1168,38 @@ def {tool_name}({param_signature}) -> Dict[str, Any]:
     {docstring}
     try:
         data = {{{param_dict_items}}} if {bool(param_names)} else {{}}
-        result = client.post(f"extras/scripts/{script_id}/", json={{
+        payload = {{
             "data": data,
             "commit": True
-        }})
+        }}
+        result = client.create(f"extras/scripts/{script_id}", payload)
         
-        job_url = result.get("result", {{}}).get("url", "")
-        job_id = job_url.split("/")[-2] if job_url else None
+        # Extract job information (same logic as execute_custom_script)
+        job_info = None
+        job_id = None
+        
+        if isinstance(result, dict):
+            # Try to get job info from result structure
+            if "result" in result and isinstance(result["result"], dict):
+                job_info = result["result"]
+                if "id" in job_info:
+                    job_id = job_info.get("id")
+                elif "url" in job_info:
+                    # Extract ID from URL as fallback
+                    job_url = job_info.get("url", "")
+                    job_id = job_url.split("/")[-2] if "/" in job_url else None
+            elif "job" in result:
+                job_info = result["job"]
+                job_id = job_info.get("id") if isinstance(job_info, dict) else None
+            elif "id" in result:
+                job_id = result.get("id")
         
         return {{
             "success": True,
             "script_id": {script_id},
             "script_name": "{script_name}",
-            "job_url": job_url,
             "job_id": job_id,
+            "job_info": job_info,
             "result": result,
             "message": f"Script '{script_name}' executed successfully. Use get_script_job_status('{{job_id}}') to check status."
         }}
