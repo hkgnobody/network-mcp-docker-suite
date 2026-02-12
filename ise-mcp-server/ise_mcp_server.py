@@ -82,13 +82,20 @@ def load_dotenv_file(env_file: str = ".env") -> bool:
 load_dotenv_file()
 
 # Configuration
-ISE_HOST = os.getenv("ISE_HOST")
-ISE_USERNAME = os.getenv("ISE_USERNAME")
-ISE_PASSWORD = os.getenv("ISE_PASSWORD")
-ISE_VERSION = os.getenv("ISE_VERSION", "1.0")
-ISE_VERIFY_SSL = os.getenv("ISE_VERIFY_SSL", "False").lower() == "true"
-mcp_host = os.getenv("MCP_HOST", "localhost")
-mcp_port = int(os.getenv("MCP_PORT", "8005"))
+def get_clean_env(key: str, default: Optional[str] = None) -> Optional[str]:
+    """Get environment variable and strip any inline comments"""
+    val = os.getenv(key, default)
+    if val:
+        return val.split('#')[0].strip().strip('\'"')
+    return val
+
+ISE_HOST = get_clean_env("ISE_HOST")
+ISE_USERNAME = get_clean_env("ISE_USERNAME")
+ISE_PASSWORD = get_clean_env("ISE_PASSWORD")
+ISE_VERSION = get_clean_env("ISE_VERSION", "1.0")
+ISE_VERIFY_SSL = get_clean_env("ISE_VERIFY_SSL", "False").lower() == "true"
+mcp_host = get_clean_env("MCP_HOST", "localhost")
+mcp_port = int(get_clean_env("MCP_PORT", "8005"))
 
 # Validate required environment variables
 if not all([ISE_HOST, ISE_USERNAME, ISE_PASSWORD]):
