@@ -117,10 +117,15 @@ class CiscoISEAPI:
         self.version = version
         self.verify_ssl = verify_ssl
         self.base_url = f"https://{self.host}/ers/config"
+
+        # Pre-encode auth for the Authorization header
+        auth_str = f"{self.username}:{self.password}"
+        encoded_auth = base64.b64encode(auth_str.encode()).decode()
         
         self.session = requests.Session()
-        self.session.auth = (username, password)
+        # self.session.auth = (username, password)
         self.session.headers.update({
+            "Authorization": f"Basic {encoded_auth}",
             "Content-Type": "application/json",
             "Accept": "application/json",
             "User-Agent": "Network-MCP-Server/1.0 pamosima"
