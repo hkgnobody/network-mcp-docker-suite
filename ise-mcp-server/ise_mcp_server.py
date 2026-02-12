@@ -54,6 +54,19 @@ def load_dotenv_file(env_file: str = ".env") -> bool:
                 line = line.strip()
                 if not line or line.startswith('#'):
                     continue
+                
+                # Remove inline comments
+                if ' #' in line:
+                    line = line.split(' #', 1)[0].strip()
+                elif '#' in line and not line.startswith('#'):
+                    # Handle cases where # might not have a space before it
+                    # but only if it's not inside a value
+                    # (Simple heuristic: if it's after the first =)
+                    parts = line.split('=', 1)
+                    if len(parts) == 2 and '#' in parts[1]:
+                        parts[1] = parts[1].split('#', 1)[0].strip()
+                        line = '='.join(parts)
+
                 if '=' in line:
                     key, value = line.split('=', 1)
                     # Remove quotes if present
