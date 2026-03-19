@@ -209,12 +209,6 @@ client = MerakiResponseFixingClient(base_client)
 # NOC (Network Operations Center) role routes
 # Limited access for monitoring and basic firmware management
 noc_routes = [
-    RouteMap(methods=["GET"], pattern=r"^/organizations$", mcp_type=MCPType.TOOL),
-    RouteMap(methods=["GET"], pattern=r"^/organizations/[^/]+/networks$", mcp_type=MCPType.TOOL),
-    RouteMap(methods=["GET"], pattern=r"^/organizations/[^/]+/devices$", mcp_type=MCPType.TOOL),
-    RouteMap(methods=["GET"], pattern=r"^/organizations/[^/]+/firmware/upgrades$", mcp_type=MCPType.TOOL),
-    RouteMap(methods=["GET"], pattern=r"^/organizations/[^/]+/licenses/overview$", mcp_type=MCPType.TOOL),
-    RouteMap(methods=["PUT"], pattern=r"^/networks/[^/]+/firmwareUpgrades$", mcp_type=MCPType.TOOL),
     # Deny all other endpoints (including PUT operations)
     RouteMap(pattern=r"^/.*", mcp_type=MCPType.EXCLUDE),
 ]
@@ -226,14 +220,19 @@ sysadmin_routes = [
     RouteMap(methods=["GET"], pattern=r"^/organizations$", mcp_type=MCPType.TOOL),
     RouteMap(methods=["GET"], pattern=r"^/organizations/[^/]+/networks$", mcp_type=MCPType.TOOL),
     RouteMap(methods=["GET"], pattern=r"^/organizations/[^/]+/devices$", mcp_type=MCPType.TOOL),
-    RouteMap(methods=["GET"], pattern=r"^/organizations/[^/]+/licenses/overview$", mcp_type=MCPType.TOOL),
-    RouteMap(methods=["GET"], pattern=r"^/organizations/[^/]+/firmware/upgrades$", mcp_type=MCPType.TOOL),
+    RouteMap(methods=["GET"], pattern=r"^/organizations/[^/]+/clients/search$", mcp_type=MCPType.TOOL),
+    RouteMap(methods=["GET"], pattern=r"^/networks/[^/]+/clients$", mcp_type=MCPType.TOOL),
+    RouteMap(methods=["GET"], pattern=r"^/networks/[^/]+/events$", mcp_type=MCPType.TOOL),
+    RouteMap(methods=["GET"], pattern=r"^/networks/[^/]+/wireless/failedConnections$", mcp_type=MCPType.TOOL),
+    RouteMap(methods=["GET"], pattern=r"^/networks/[^/]+/wireless/clients/[^/]+/connectivityEvents$", mcp_type=MCPType.TOOL),
     RouteMap(pattern=r"^/.*", mcp_type=MCPType.EXCLUDE),
 ]
 
 # Firehose role routes
 # Full API access - no restrictions (empty list means allow all)
-firehose_routes = []
+firehose_routes = [
+    RouteMap(pattern=r"^/.*", mcp_type=MCPType.EXCLUDE),
+]
 
 
 def patched_validate(*args, **kwargs):
