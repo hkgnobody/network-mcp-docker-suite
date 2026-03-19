@@ -1,5 +1,5 @@
 # IOS XE MCP Server - Dockerfile
-FROM python:3.11-slim
+FROM python:3.11-slim@sha256:6d98ca198cea726f2c86da2699594339a7b7ff08e49728797b4ed6e3b5c3b62a
 
 # Set working directory
 WORKDIR /app
@@ -14,10 +14,10 @@ RUN apt-get update && apt-get install -y \
 RUN pip install uv
 
 # Copy dependency files
-COPY pyproject.toml uv.lock* ./
+COPY pyproject.toml ./
 
 # Install Python dependencies using uv
-RUN uv sync --frozen
+RUN uv sync
 
 # Copy application code
 COPY . .

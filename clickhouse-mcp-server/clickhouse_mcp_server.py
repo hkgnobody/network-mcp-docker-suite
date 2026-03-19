@@ -14,7 +14,6 @@ Environment Variables:
 import os
 import re
 from typing import Any, Dict, Optional, List
-from datetime import datetime
 
 import httpx
 from fastmcp import FastMCP
@@ -363,14 +362,6 @@ def get_recent_errors(
     Returns:
         Error and critical severity messages
     """
-    return query_syslog(
-        host=host,
-        since_minutes=since_minutes,
-        severity_filter=None,  # We'll filter in SQL
-        limit=limit
-    )
-    
-    # Override with specific error filter
     since_minutes = max(1, since_minutes)
     limit = min(max(1, limit), 500)
     

@@ -28,11 +28,10 @@ Based on: https://github.com/automateyournetwork/ISE_MCP
 """
 
 import os
-import json
 import requests
 import urllib3
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, Optional
 from fastmcp import FastMCP
 
 # Disable SSL warnings if verify is False
@@ -481,6 +480,34 @@ def ise_get_admin_users(
     return ise_api.get("adminuser", params=params)
 
 @mcp.tool()
+def ise_get_endpoint_group_by_id(group_id: str) -> Dict[str, Any]:
+    """
+    Get a specific endpoint group by ID using the direct /id/ path.
+    This is often more reliable than filtering. This is the preferred method for retrieving endpoint group details by ID.
+    
+    Args:
+        group_id: ID of the endpoint group
+    
+    Returns:
+        Dict containing endpoint group details
+    """
+    return ise_api.get(f"endpointgroup/{group_id}")
+
+@mcp.tool()
+def ise_get_endpoint_by_id(endpoint_id: str) -> Dict[str, Any]:
+    """
+    Get a specific endpoint by ID using the direct /id/ path.
+    This is often more reliable than filtering. This is the preferred method for retrieving full endpoint details including description by ID.
+    
+    Args:
+        endpoint_id: ID of the endpoint
+    
+    Returns:
+        Dict containing full endpoint details including description, MAC address, group assignment, profiling info, and custom attributes
+    """
+    return ise_api.get(f"endpoint/{endpoint_id}")
+
+@mcp.tool()
 def ise_search_endpoint_by_mac(mac_address: str) -> Dict[str, Any]:
     """
     Search for a specific endpoint by MAC address
@@ -603,7 +630,7 @@ if __name__ == "__main__":
     
     # Test ISE API connectivity
     try:
-        network_devices = ise_api.get("networkdevice", params={"size": 1})
+        ise_api.get("networkdevice", params={"size": 1})
         print("✅ Successfully connected to ISE ERS API")
         print(f"📊 ISE Server Version: {ISE_VERSION}")
     except Exception as e:

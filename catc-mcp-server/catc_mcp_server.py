@@ -25,10 +25,9 @@ Author: Patrick Mosimann
 """
 
 import os
-import json
 import base64
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 import requests
 from fastmcp import FastMCP
 
@@ -452,7 +451,7 @@ def resolve_issues(issue_ids: List[str]) -> Dict[str, Any]:
             try:
                 error_detail = e.response.json()
                 error_message = f"Failed to resolve issues: {error_detail}"
-            except:
+            except Exception:
                 error_message = f"Failed to resolve issues: {e.response.text}"
         
         print(f"❌ API Error: {error_message}")

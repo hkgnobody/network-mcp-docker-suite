@@ -27,9 +27,17 @@ Author: Patrick Mosimann
 import httpx
 import os
 import json
+import logging
 import jsonschema
 from pathlib import Path
 from fastmcp import FastMCP
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger("meraki-mcp-server")
 from fastmcp.server.openapi import RouteMap, MCPType
 from fastmcp.server.openapi import OpenAPITool
 
@@ -79,7 +87,7 @@ if not api_key or api_key.startswith('your_actual_'):
     print("   Example: MERAKI_KEY=your_actual_api_key_here")
     exit(1)
 
-print(f"✅ Meraki API key loaded: {api_key[:8]}...{api_key[-4:]}")
+print(f"✅ Meraki API key loaded: [CONFIGURED]")
 print(f"🌐 MCP Server will run on: http://{mcp_host}:{mcp_port}")
 
 
@@ -195,8 +203,6 @@ base_client = httpx.AsyncClient(
 client = MerakiResponseFixingClient(base_client)
 
 # ---- Validation Patching ----
-# Store original validate method for potential restoration
-_original_validate = jsonschema.validate
 
 # ---- Role-Based Route Configurations ----
 
@@ -261,8 +267,8 @@ try:
     import fastmcp.server.openapi
     if hasattr(fastmcp.server.openapi, 'validate'):
         fastmcp.server.openapi.validate = patched_validate
-except:
-    pass
+except Exception as e:
+    logger.debug(f"Could not patch fastmcp.server.openapi.validate: {e}")
 
 # Also patch the OpenAPITool class validation if it exists
 if hasattr(OpenAPITool, 'validate_output'):
@@ -284,8 +290,8 @@ try:
     if hasattr(Draft7Validator, 'iter_errors'):
         Draft7Validator.iter_errors = lambda self, *args, **kwargs: []
         
-except:
-    pass
+except Exception as e:
+    logger.debug(f"Could not patch jsonschema validators: {e}")
 
 # More aggressive FastMCP patching
 try:
@@ -314,8 +320,8 @@ for module_name, module in sys.modules.items():
                     attr = getattr(module, attr_name)
                     if callable(attr):
                         setattr(module, attr_name, patched_validate)
-        except:
-            pass
+        except Exception as e:
+            logger.debug(f"Could not patch module {module_name}: {e}")
 
 # ---- MCP Server Configuration ----
 
@@ -382,8 +388,8 @@ def emergency_patch():
                             attr = getattr(module, attr_name)
                             if callable(attr):
                                 setattr(module, attr_name, lambda *a, **k: None)
-                        except:
-                            pass
+                        except Exception as e:
+                            logger.debug(f"Could not patch {module_name}.{attr_name}: {e}")
 
 emergency_patch()
 
